@@ -367,13 +367,14 @@ func (typ *goStructType) FlattenedFields() ([]*selector, error) {
 func (typ *goStructType) WriteDefinition(w io.Writer, g *generator) error {
 	writeDescription(w, structDescription(typ))
 
+	//fmt.Println("go type Name:", typ.GraphQLName, "--", typ.GoName)
 	fmt.Fprintf(w, "type %s struct {\n", typ.GoName)
 	for _, field := range typ.Fields {
 		writeDescription(w, field.Description)
 		jsonTag := `"` + field.JSONName
-		if field.Omitempty {
-			jsonTag += ",omitempty"
-		}
+		//if field.Omitempty { // Modified for use in Borderless HQ; by Justice Nefe (https://linkedin.com/in/Just4Ease || https://github.com/Just4Ease )
+		jsonTag += ",omitempty"
+		//}
 		jsonTag += `"`
 		if field.NeedsMarshaling() {
 			// certain types are handled in our (Un)MarshalJSON (see below)

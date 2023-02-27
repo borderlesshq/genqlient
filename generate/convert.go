@@ -95,7 +95,7 @@ func (g *generator) convertOperation(
 	operation *ast.OperationDefinition,
 	queryOptions *genqlientDirective,
 ) (goType, error) {
-	name := operation.Name + "Response"
+	name := upperFirst(operation.Name) + "Response" //TODO: Remove upperFirst if not working.
 	namePrefix := newPrefixList(operation.Name)
 	if queryOptions.TypeName != "" {
 		name = queryOptions.TypeName
@@ -143,7 +143,7 @@ func (g *generator) convertOperation(
 
 var builtinTypes = map[string]string{
 	// GraphQL guarantees int32 is enough, but using int seems more idiomatic
-	"Int":     "int",
+	"Int":     "int64",
 	"Float":   "float64",
 	"String":  "string",
 	"Boolean": "bool",
@@ -525,7 +525,7 @@ func (g *generator) convertDefinition(
 		// (If you had an entry in bindings, we would have returned it above.)
 		return nil, errorf(
 			pos, "unknown scalar %v: please add it to \"bindings\" in genqlient.yaml"+
-				"\nExample: https://github.com/Khan/genqlient/blob/main/example/genqlient.yaml#L12", def.Name)
+				"\nExample: https://github.com/borderlesshq/genqlient/blob/main/example/genqlient.yaml#L12", def.Name)
 	default:
 		return nil, errorf(pos, "unexpected kind: %v", def.Kind)
 	}
@@ -632,7 +632,7 @@ func (g *generator) convertSelectionSet(
 				// selection, so we can put this error on the right line.
 				return nil, errorf(nil,
 					"genqlient doesn't allow duplicate fields with different selections "+
-						"(see https://github.com/Khan/genqlient/issues/64); "+
+						"(see https://github.com/borderlesshq/genqlient/issues/64); "+
 						"duplicate field: %s.%s", containingTypedef.Name, field.JSONName)
 			default:
 				return nil, errorf(nil, "unexpected field-type: %T", field.GoType.Unwrap())
@@ -823,6 +823,7 @@ func (g *generator) convertNamedFragment(fragment *ast.FragmentDefinition) (goTy
 			implDesc := desc
 			implDesc.GraphQLName = implDef.Name
 
+			fmt.Println("frag: ", fragment.Name, "--", implDef.Name, "--upper", upperFirst(implDef.Name), "--", fragment.Name+upperFirst(implDef.Name))
 			implTyp := &goStructType{
 				GoName:          fragment.Name + upperFirst(implDef.Name),
 				Fields:          implFields,
